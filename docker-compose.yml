@@ -9,11 +9,11 @@ services:
     image: postgres:16
     restart: always
     environment:
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - POSTGRES_DB
-      - POSTGRES_NON_ROOT_USER
-      - POSTGRES_NON_ROOT_PASSWORD
+      - POSTGRES_USER = postgres
+      - POSTGRES_PASSWORD = tgpmdpcahldow9mf
+      - POSTGRES_DB = N8N
+      - POSTGRES_NON_ROOT_USER = loverall
+      - POSTGRES_NON_ROOT_PASSWORD = loverall
     volumes:
       - db_storage:/var/lib/postgresql/data
       - ./init-data.sh:/docker-entrypoint-initdb.d/init-data.sh

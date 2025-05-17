@@ -9,11 +9,11 @@ services:
     image: postgres:16
     restart: always
     environment:
-      - POSTGRES_USER = postgres
-      - POSTGRES_PASSWORD = tgpmdpcahldow9mf
-      - POSTGRES_DB = N8N
-      - POSTGRES_NON_ROOT_USER = loverall
-      - POSTGRES_NON_ROOT_PASSWORD = loverall
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_NON_ROOT_USER=${POSTGRES_NON_ROOT_USER}
+      - POSTGRES_NON_ROOT_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
     volumes:
       - db_storage:/var/lib/postgresql/data
       - ./init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
@@ -22,6 +22,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - dokploy-network
 
   n8n:
     image: docker.n8n.io/n8nio/n8n
@@ -35,31 +37,20 @@ services:
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
     ports:
       - 5678:5678
-    links:
-      - postgres
     volumes:
       - n8n_storage:/home/node/.n8n
     depends_on:
       postgres:
         condition: service_healthy
-    build:
-      context: ./n8n
-      dockerfile: prod.Dockerfile
-      args:
-        ENV_VARIABLE: ${ENV_VARIABLE}
-        NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
-    restart: always
     networks:
       - dokploy-network
     labels:
       - traefik.enable=true
       - traefik.http.routers.next-app.rule=Host(`n8n.pimlicoservices.com`)
       - traefik.http.routers.next-app.entrypoints=websecure
-      - traefik.http.routers.next-app.tls.certResolver=letsencrypt
+      - traefik.http.routers.next-app.tls.certresolver=letsencrypt
       - traefik.http.services.next-app.loadbalancer.server.port=5678
-  # Add more containers below (nginx, postgres, etc.)
-# Define a network, which allows containers to communicate
-# with each other, by using their container name as a hostname
+
 networks:
   dokploy-network:
     external: true
